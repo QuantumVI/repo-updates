@@ -1,0 +1,29 @@
+Public Class Form1
+   Private Sub Form1_Load(sender As Object, e As EventArgs) _ 
+    Handles MyBase.Load
+      ' Set the caption bar text of the form.  
+      Me.Text = "tutorialspoint.com"
+   End Sub
+   
+   Private Sub Button1_Click(sender As Object, e As EventArgs) _ 
+      Handles Button1.Click
+      Clipboard.SetDataObject(RichTextBox1.SelectedText)
+      RichTextBox1.SelectedText = ""
+   End Sub
+   
+   Private Sub Button2_Click(sender As Object, e As EventArgs) _
+       Handles Button2.Click
+      Clipboard.SetDataObject(RichTextBox1.SelectedText)
+   End Sub
+   
+   Private Sub Button3_Click(sender As Object, e As EventArgs) _
+    Handles Button3.Click
+      Dim iData As IDataObject
+      iData = Clipboard.GetDataObject()
+      If (iData.GetDataPresent(DataFormats.Text)) Then
+         RichTextBox1.SelectedText = iData.GetData(DataFormats.Text)
+      Else
+         RichTextBox1.SelectedText = " "
+      End If
+   End Sub
+End Class
