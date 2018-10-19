@@ -1,2 +1,0 @@
-# GitHub
-GitHub for Discord
