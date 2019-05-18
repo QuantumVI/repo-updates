@@ -1,0 +1,68 @@
+const Discord = require("discord.js"); //discord api thingy
+const fs = require("fs");
+const bot = new Discord.Client(); //defines bot 
+const prefix = ";";
+const antispam = require("discord-anti-spam"); //the main function for the anti spam
+bot.commands = new Discord.Collection();
+
+
+
+antispam(bot, {
+    warnBuffer: 3, //Maximum amount of messages allowed to send in the interval time before getting warned.
+    maxBuffer: 5, // Maximum amount of messages allowed to send in the interval time before getting banned.
+    interval: 1000, // Amount of time in ms users can send a maximum of the maxBuffer variable before getting banned.
+    warningMessage: "Hello, don't spam. PuRe bot has anti spam features. You'll be banned if you continue.", // Warning message send to the user indicating they are going to fast.
+    banMessage: " was banned for spamming. Don't test PuRe bots anti spam. Would anyone else like a try?", // Ban message, always tags the banned user in front of it.
+    maxDuplicatesWarning: 7, // Maximum amount of duplicate messages a user can send in a timespan before getting warned
+    maxDuplicatesBan: 10, // Maximum amount of duplicate messages a user can send in a timespan before getting banned
+    deleteMessagesAfterBanForPastDays: 7 // Delete the spammed messages after banning for the past x days.
+});
+
+
+//the whole fs thing is just for a command manager
+fs.readdir("./cmi/", (err, files) => {
+
+    if (err) console.log(err);
+    let jsfile = files.filter(f => f.split(".").pop() === "js");
+    if (jsfile.length <= 0) {
+        console.log("Couldn't find commands.");
+        return;
+    }
+
+    jsfile.forEach((f, i) => {
+        let props = require(`./cmi/${f}`);
+        console.log(`${f} loaded!`);
+        bot.commands.set(props.help.name, props);
+    });
+});
+
+
+//the playing status
+bot.on("ready", async () => {
+
+    console.log(`${bot.user.username} is online on ${bot.guilds.size} servers!`);
+    bot.user.setActivity("Updating", {
+        type: "PLAYING"
+    });
+
+});
+
+
+//if someone dms the bot it wonr work and makes sure the prefix is being used and a bot is not using this bot
+bot.on("message", async message => {
+    if (message.author.bot) return;
+    if (message.channel.type === "dm") return;
+
+
+
+    let MessageAraay = message.content.split(" ");
+    let command = MessageAraay[0];
+    let args = MessageAraay.slice(1);
+
+    if (!command.startsWith(prefix)) return;
+
+    let cmd = bot.commands.get(command.slice(prefix.length))
+    if (cmd) cmd.run(bot, message, args);
+});
+
+bot.login("TOKEN"); //really should be put in a .json file.
